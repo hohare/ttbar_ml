@@ -1,0 +1,135 @@
+data: /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_revamp/
+dedicated: trainpt_1p0_3p0_lin
+output: validation_1p0_3p0_asymm3/
+networks:
+- /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_revamp/trainpt_1p0_1p0_lin
+- /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_revamp/trainpt_1p0_m3p0_lin
+- /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_revamp/trainpt_sm_quad
+device: cuda
+features:
+  Lep_pt:
+    label: Lepton $p_T$ (GeV)
+    loc: 0
+    max: 1500
+    min: 0
+    nbins: 50
+  Lep_eta:
+    label: Lepton $\eta$
+    loc: 1
+    max: 2.5
+    min: -2.5
+    nbins: 50
+  Lep_phi:
+    label: Lepton $\phi$
+    loc: 2
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  met_pt:
+    label: met $p_T$
+    loc: 3
+    max: 1200
+    min: 0
+    nbins: 50
+  met_phi:
+    label: met $\phi$
+    loc: 4
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  jet1_pt:
+    label: Leading Jet $p_T$ (GeV)
+    loc: 5
+    max: 2500
+    min: 0
+    nbins: 50
+  jet1_phi:
+    label: Leading Jet $\phi$
+    loc: 6
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  jet2_pt:
+    label: Sub-Leading Jet $p_T$ (GeV)
+    loc: 7
+    max: 2500
+    min: 0
+    nbins: 50
+  jet2_phi:
+    label: Sub-Leading Jet $\phi$
+    loc: 8
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  jet3_pt:
+    label: Jet 3 $p_T$ (GeV)
+    loc: 9
+    max: 2500
+    min: 0
+    nbins: 50
+  jet3_phi:
+    label: Jet 3 $\phi$
+    loc: 10
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  jet4_pt:
+    label: Jet 4 $p_T$ (GeV)
+    loc: 11
+    max: 2500
+    min: 0
+    nbins: 50
+  jet4_phi:
+    label: Jet 4 $\phi$
+    loc: 12
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  njet:
+    label: nJets
+    loc: 13
+    max: 15
+    min: 4
+    nbins: 10
+  H_T:
+    label: $H_T$ (GeV)
+    loc: 14
+    max: 5000
+    min: 0
+    nbins: 50
+  lepjets_mass:
+    label: lep+jets mass (GeV)
+    loc: 15
+    max: 3700
+    min: 0
+    nbins: 50
+  dphi_lep_jet1:
+    label: $d_\phi$(lep, jet1)
+    loc: 16
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  dphi_lep_jet2:
+    label: $d_\phi$(lep, jet2)
+    loc: 17
+    max: 3.15
+    min: -3.15
+    nbins: 50
+  ratio_rho:
+    label: $d_\phi$(lep, jet2)
+    loc: 18
+    max: 100.
+    min: 0
+    nbins: 50
+  lj0_pt:
+    label: lep_jet1 $p_T$ (GeV)
+    loc: 19
+    max: 3700
+    min: 0
+    nbins: 50
+  dr_lj0:
+    label: $\Delta r$(lep, jet2)
+    loc: 20
+    max: 5
+    min: 0
+    nbins: 30

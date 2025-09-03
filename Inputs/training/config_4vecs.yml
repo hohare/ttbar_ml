@@ -1,0 +1,18 @@
+signalSample: /uscms_data/d3/honor/Outputs_nlo/pretraining/dataprep_2017_TTtoLNu2Q_mcut.pkl.gz
+backgroundSample: /uscms_data/d3/honor/Outputs_nlo/pretraining/dataprep_2017_TTToSemiLeptonic_mcut.pkl.gz
+name: /uscms_data/d3/honor/Outputs_nlo/training/test
+device: cuda
+network: simple
+features: 
+- top1pt
+- top1eta
+- top1phi
+- top1mass
+- top2pt
+- top2eta
+- top2phi
+- top2mass
+batchSize: 1000
+epochs: 15
+normalization: weightMean
+learningRate: 1.0e-05

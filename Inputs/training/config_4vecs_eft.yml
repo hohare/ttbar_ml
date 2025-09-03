@@ -1,0 +1,26 @@
+name: /uscms_data/d3/honor/Outputs_nlo/training/eft_only
+signalSample: 
+- /uscms_data/d3/honor/Outputs_nlo/pretraining/original_dataloader/dataframe_2017_TTtoLNu2Q_0to700_vars.pkl.gz
+- /uscms_data/d3/honor/Outputs_nlo/pretraining/original_dataloader/dataframe_2017_TTtoLNu2Q_700to900_vars.pkl.gz
+- /uscms_data/d3/honor/Outputs_nlo/pretraining/original_dataloader/dataframe_2017_TTtoLNu2Q_900toInf_vars.pkl.gz
+backgroundSample: /uscms_data/d3/honor/Outputs_nlo/pretraining/dataframe_ctq8_1p22.pkl.gz
+metadata:
+ 0to700: /uscms_data/d3/honor/Outputs_nlo/pretraining/original_dataloader/metadata_2017_TTtoLNu2Q_0to700_vars.json
+ 700to900: /uscms_data/d3/honor/Outputs_nlo/pretraining/original_dataloader/metadata_2017_TTtoLNu2Q_700to900_vars.json
+ 900toInf: /uscms_data/d3/honor/Outputs_nlo/pretraining/original_dataloader/metadata_2017_TTtoLNu2Q_900toInf_vars.json
+ eft: /uscms_data/d3/honor/Outputs_nlo/pretraining/metadata_ctq8_1p22.json
+device: cuda
+network: simple
+features: 
+- top1pt
+- top1eta
+- top1phi
+- top1mass
+- top2pt
+- top2eta
+- top2phi
+- top2mass
+batchSize: 1000
+epochs: 10
+normalization: weightMean
+learningRate: 1.0e-05

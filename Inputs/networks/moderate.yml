@@ -1,0 +1,21 @@
+model:
+ layers:
+ - type: Linear
+   out: 128
+   activation: LeakyReLU
+ - type: Linear
+   in: 128
+   out: 64
+   activation: LeakyReLU
+ - type: Linear
+   in: 64
+   out: 32
+   activation: LeakyReLU
+ - type: Linear
+   in: 32
+   out: 8
+   activation: LeakyReLU
+ - type: Linear
+   in: 8
+   out: 1
+   activation: Sigmoid

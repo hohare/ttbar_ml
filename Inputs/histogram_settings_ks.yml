@@ -1,0 +1,132 @@
+top1pt:
+ min: 0
+ max: 1600
+ nbins: 100
+top2pt: 
+ min: 0
+ max: 1600
+ nbins: 100
+top1eta:
+ min: -2.5
+ max: 2.5
+ nbins: 50
+top2eta:
+ min: -2.5
+ max: 2.5
+ nbins: 50
+top1phi:
+ min: -3.15
+ max: 3.15
+ nbins: 50
+top2phi:
+ min: -3.15
+ max: 3.15
+ nbins: 50
+top1mass:
+ min: 150
+ max: 192.5
+ nbins: 100
+top2mass:
+ min: 150
+ max: 192.5
+ nbins: 100
+mtt:
+ min: 250
+ max: 2000
+ nbins: 100
+tops_pt:
+ min: 0
+ max: 800
+ nbins: 100
+avg_top_pt:
+ min: 0
+ max: 600
+ nbins: 100
+lep_pt:
+ min: 0
+ max: 600
+ nbins: 100
+lep_eta:
+ min: -2.5
+ max: 2.5
+ nbins: 20
+lep_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+lep_mass:
+ min: 0
+ max: 200
+ nbins: 50
+met_pt:
+ min: 0
+ max: 600
+ nbins: 50
+met_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+jet1_pt:
+ min: 0
+ max: 600
+ nbins: 50
+jet1_eta:
+ min: -2.5
+ max: 2.5
+ nbins: 20
+jet1_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+jet1_mass:
+ min: 0
+ max: 200
+ nbins: 50
+jet2_pt:
+ min: 0
+ max: 600
+ nbins: 50
+jet2_eta:
+ min: -2.5
+ max: 2.5
+ nbins: 20
+jet2_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+jet2_mass:
+ min: 0
+ max: 200
+ nbins: 50
+jet3_pt:
+ min: 0
+ max: 600
+ nbins: 50
+jet3_eta:
+ min: -2.5
+ max: 2.5
+ nbins: 20
+jet3_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+jet3_mass:
+ min: 0
+ max: 200
+ nbins: 50
+jet4_pt:
+ min: 0
+ max: 600
+ nbins: 50
+jet4_eta:
+ min: -2.5
+ max: 2.5
+ nbins: 20
+jet4_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+jet4_mass:
+ min: 0
+ max: 200
+ nbins: 50

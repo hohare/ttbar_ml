@@ -1,0 +1,5 @@
+*.ipynb
+*.root
+*.sh
+.ipynb_checkpoints
+__pycache__
