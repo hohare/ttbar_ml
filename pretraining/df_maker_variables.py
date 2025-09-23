@@ -6,8 +6,8 @@ from coffea import processor
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 from coffea.analysis_tools import PackedSelection
 
-from pretraining.accumulators import DataframeAccumulator
-from pretraining.analysis_tools import genObjectSelection
+from .DataframeAccumulator import DataframeAccumulator
+from .analysis_tools import genObjectSelection
 
 NanoAODSchema.warn_missing_crossrefs = False
 np.seterr(divide='ignore', invalid='ignore', over='ignore')
@@ -16,7 +16,6 @@ class SemiLepProcessor(processor.ProcessorABC):
     def __init__(self, SMweight_idx=-1, runVariables=False):
         if SMweight_idx == -1: print('FUCK')
         self.SMweight_idx = SMweight_idx
-        self.runVariables = runVariables
         
         self._accumulator = processor.dict_accumulator({
             "dataframe": DataframeAccumulator(pd.DataFrame()),
@@ -32,13 +31,13 @@ class SemiLepProcessor(processor.ProcessorABC):
         
     def process(self, events):     
         fname = events.metadata['filename']
-        if "smeft" in fname or "ctq8" in fname: isEFT=True
+        if "smeft" in fname or "honor" in fname: isEFT=True
         else: isEFT=False
         output = self._accumulator.identity()
-        output['metadata']['nInputEvents'] += len(events)
-        output['metadata']["sumGenWeights"] += ak.sum(events.genWeight)
+        output['metadata']['nInputEvents'] += ak.num(events,0)
+        output['metadata']["sumGenWeights"] += np.float64(ak.sum(events.genWeight))
         if self.SMweight_idx>0:
-            output['metadata']["sumSMreweights"] += ak.sum(events.LHEReweightingWeight[:,self.SMweight_idx])
+            output['metadata']["sumSMreweights"] += np.float64(ak.sum(events.LHEReweightingWeight[:,self.SMweight_idx]))
         
         df = pd.DataFrame()
 
@@ -73,23 +72,13 @@ class SemiLepProcessor(processor.ProcessorABC):
         leps  = leps[event_selection_mask]
         jets  = jets[event_selection_mask]
         met   = events.GenMET[event_selection_mask]
-
-        ######## Create Variables ########
-        mtt = (tops[:,0] + tops[:,1]).mass
-        tops_pt = tops.sum().pt
-        avg_top_pt = np.divide(tops_pt, 2.0)
-
-        # get EFT reweighted to SM
-        weight_originalXWGTUP = ak.to_numpy(events.LHEWeight.originalXWGTUP[event_selection_mask])
-        if isEFT:
-            weights = ak.to_numpy(events.LHEReweightingWeight[:,self.SMweight_idx][event_selection_mask])
-        else: # set all weights to one      
-            #weights = np.ones_like(events['event'])[event_selection_mask]
-            weights = ak.to_numpy(events.genWeight[event_selection_mask])
         
         ######## Fill pandas dataframe ########s
-        df['weights']   = weights
-        #df['weight_originalXWGTUP'] = weight_originalXWGTUP
+        if isEFT:
+            df['SMweights'] = ak.to_numpy(events.LHEReweightingWeight[:,self.SMweight_idx][event_selection_mask])
+        else:
+            df['SMweights'] = ak.ones_like(events.genWeight[event_selection_mask])
+            df['genweights'] = ak.to_numpy(events.genWeight[event_selection_mask])
         df['top1pt']   = tops.pt[:,0]
         df['top1eta']  = tops.eta[:,0]
         df['top1phi']  = tops.phi[:,0]
@@ -99,9 +88,9 @@ class SemiLepProcessor(processor.ProcessorABC):
         df['top2phi']  = tops.phi[:,1]
         df['top2mass'] = tops.mass[:,1]
 
-        df['mtt']       = mtt
-        df['tops_pt']   = tops_pt
-        df['avg_top_pt']= avg_top_pt
+        df['mtt']       = (tops[:,0] + tops[:,1]).mass
+        df['tops_pt']   = tops.sum().pt
+        df['avg_top_pt']= np.divide(tops_pt, 2.0)
         
         df['lep_pt']   = leps.pt[:,0]
         df['lep_eta']  = leps.eta[:,0]

@@ -6,6 +6,12 @@ def isClean(obj_A, obj_B, drmin=0.4):
     mask = ak.fill_none(objB_DR > drmin, True)
     return (mask)
 
+def topObjectSelection(genparts):
+    is_final_mask = genparts.hasFlags(["fromHardProcess","isLastCopy"])
+    gen_tops = ak.pad_none(genparts[is_final_mask & (abs(genparts.pdgId) == 6)],2)
+    exactly_two_tops = ak.fill_none(ak.num(gen_tops)==2, False)
+    return gen_tops, exactly_two_tops
+
 def genObjectSelection(events):
     ######## Initialize objets ########
     leps  = events.GenDressedLepton

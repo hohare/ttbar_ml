@@ -13,7 +13,7 @@ NanoAODSchema.warn_missing_crossrefs = False
 class SemiLepProcessor(processor.ProcessorABC):
     def __init__(self, runFit=True, dtype=float64):
         self.runFit = runFit
-        self._dtype   = dtype
+        self._dtype = float64
         #self.coefficients = coefficients
         #self._samples = samples
        

@@ -2,23 +2,24 @@ import awkward as ak
 import numpy as np
 import pandas as pd
 
-from coffea import processor
+#from coffea import processor
+from coffea.processor import ProcessorABC, dict_accumulator, defaultdict_accumulator
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 from coffea.analysis_tools import PackedSelection
 
-from pretraining.accumulators import DataframeAccumulator
+from .DataframeAccumulator import DataframeAccumulator
 #from pretraining.selection import is_clean
 
 NanoAODSchema.warn_missing_crossrefs = False
 np.seterr(divide='ignore', invalid='ignore', over='ignore')
 
-class SemiLepProcessor(processor.ProcessorABC):
+class SemiLepProcessor(ProcessorABC):
     def __init__(self, SMweight_idx=-1):
         self.SMweight_idx = SMweight_idx
         
-        self._accumulator = processor.dict_accumulator({
+        self._accumulator = dict_accumulator({
             "dataframe": DataframeAccumulator(pd.DataFrame()),
-            "metadata": processor.defaultdict_accumulator(float),
+            "metadata": defaultdict_accumulator(float),
         })
 
     def accumulator(self):
@@ -28,16 +29,17 @@ class SemiLepProcessor(processor.ProcessorABC):
     def columns(self):
         return self._columns
         
-    def process(self, events):     
+    def process(self, events):
         fname = events.metadata['filename']
-        if "smeft" in fname: isEFT=True
+        
+        if "smeft" in fname or "honor" in fname: isEFT=True
         else: isEFT=False
         output = self._accumulator.identity()
-        output['metadata']['nInputEvents'] += len(events)
-        output['metadata']["sumGenWeights"] += ak.sum(events.genWeight)
+        output['metadata']['nInputEvents'] += ak.num(events, axis=0)
+        output['metadata']["sumGenWeights"] += np.float64(ak.sum(events.genWeight))
         if self.SMweight_idx>0:
-            output['metadata']["sumSMreweights"] += ak.sum(events.LHEReweightingWeight[:,self.SMweight_idx])
-        
+            output['metadata']["sumSMreweights"] += np.float64(ak.sum(events.LHEReweightingWeight[:,self.SMweight_idx]))
+
         df = pd.DataFrame()
 
         ######## Initialize Objects  ########
@@ -69,28 +71,20 @@ class SemiLepProcessor(processor.ProcessorABC):
         tops = gen_top[event_selection_mask]
         tops_idx = ak.argsort(tops.pt, ascending=False)
         tops = tops[tops_idx]
-        
+
 
         ######## Create Variables ########
         mtt = (tops[:,0] + tops[:,1]).mass
         tops_pt = tops.sum().pt
         avg_top_pt = np.divide(tops_pt, 2.0)
-        #njets = ak.num(jets)
-
-        # get EFT reweighted to SM
-        weight_originalXWGTUP = ak.to_numpy(events.LHEWeight.originalXWGTUP[event_selection_mask])
-        if isEFT:
-            weights = ak.to_numpy(events.LHEReweightingWeight[:,self.SMweight_idx][event_selection_mask])
-        else: # set all weights to one      
-            #weights = np.ones_like(events['event'])[event_selection_mask]
-            weights = ak.to_numpy(events.genWeight[event_selection_mask])
         
-        ######## Fill pandas dataframe ########s
-        df['weights']   = weights
-        df['weight_originalXWGTUP'] = weight_originalXWGTUP
-        df['mtt']       = mtt
-        df['tops_pt']   = tops_pt
-        df['avg_top_pt']= avg_top_pt
+        ######## Fill pandas dataframe ########
+        if isEFT:
+            df['SMweights'] = ak.to_numpy(events.LHEReweightingWeight[:,self.SMweight_idx][event_selection_mask])
+        else:
+            df['genweights'] = ak.to_numpy(events.genWeight[event_selection_mask])
+            
+        df['weight_originalXWGTUP'] = ak.to_numpy(events.LHEWeight.originalXWGTUP[event_selection_mask])
 
         df['top1pt']=tops.pt[:,0]
         df['top1eta']=tops.eta[:,0]
@@ -101,6 +95,8 @@ class SemiLepProcessor(processor.ProcessorABC):
         df['top2eta']=tops.eta[:,1]
         df['top2phi']=tops.phi[:,1]
         df['top2mass']=tops.mass[:,1]
+
+        df['mtt'] = mtt
 
         output['dataframe'] = DataframeAccumulator(df)
         return output
