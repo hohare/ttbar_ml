@@ -35,7 +35,6 @@ def main(config, project):
     elif project=="dctr":
         from projects.dctr.net import Model
 
-        
         train = load(config["traindata"], map_location=device(config['device']), weights_only=False)
         test  = load(config["testdata"], map_location=device(config['device']), weights_only=False)
         
@@ -73,16 +72,16 @@ def main(config, project):
         if stopper.stop_early:
             print(f'Stopping early after {epoch} epochs')
             break
-    
+
+    print("Plotting network results...")
+    myplt.plot_losses(testLoss, trainLoss, config['name'], epochs)
+    myplt.plot_network(model.net, test, config['name'], epochs)
+    myplt.plot_network_end(model.net, test, train, config['name'], epochs)
     # Save network final results
     print("Saving network...")
-    model = model.to('cpu') #Recommended by pytorch
-    save(model.net, config['name']+'/network.p')
-    save(model.net.state_dict(), config['name']+'/networkStateDict.p')
-    print("Plotting network results...")
-    myplt.plot_losses(testLoss, trainLoss, config['name'], config['epochs'])
-    myplt.plot_network(model.net, test, config['name'], config['epochs'])
-    myplt.plot_network_end(model.net, test, train, config['name'], config['epochs'])
+    net = model.net.to('cpu') #Recommended by pytorch
+    save(net, config['name']+'/network.p')
+    save(net.state_dict(), config['name']+'/networkStateDict.p')
 
 if __name__=="__main__":
     parser = ArgumentParser()

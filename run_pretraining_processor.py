@@ -79,6 +79,7 @@ def main():
     if args.rwgtcard is not None:
         #TODO: if idx is list, check that the weights for each idx are the same (aka are all truly SM)
         SMweight_idx = acquire_SM_rwgt_index(args.rwgtcard)
+        print(SMweight_idx)
     else:
         SMweight_idx = 0
     if outFormat=='dctr' and args.validation:
@@ -158,7 +159,7 @@ def main():
         #TODO: add wc list to jsons
         #TODO: add rwgt pts
         metadata = dict(output['metadata'])
-        metadata['validation'] = validation_files
+        if args.validation: metadata['validation'] = validation_files
         with open(out_json_file,"w") as fout:
             json.dump(metadata, fout, indent=4)
         # Write the dataframe to a pickle file

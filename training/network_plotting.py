@@ -61,7 +61,7 @@ def plot_network_end(network, testset, trainset, name, epoch):
     ax.set_xlabel('False Positive Rate', fontsize=14)
     ax.set_ylabel('True Positive Rate', fontsize=14)
     ax.set_title(f'AUC: {auc}', fontsize=14)
-    fig.savefig(f'{name}/roc.png')
+    fig.savefig(f'{name}/training/roc.png')
     plt.clf()
     plt.close()
 
@@ -70,7 +70,7 @@ def plot_network_end(network, testset, trainset, name, epoch):
         'Area under ROC': auc,
         'Accuracy': a
     }
-    with open(f'{name}/performance.yml','w') as f:
+    with open(f'{name}/training/performance.yml','w') as f:
         f.write(yaml.dump(performance))
     
     #PLOTTING THE NETWORK OUTPUTS
@@ -136,7 +136,7 @@ def plot_network_end(network, testset, trainset, name, epoch):
     axes[1].set_xlabel('network output')
     axes[1].set_ylabel('test / train')
     axes[1].legend(ncols=2)
-    fig.savefig(f'{name}/netOut_{epoch}.png')
+    fig.savefig(f'{name}/training/netOut_{epoch}.png')
     axes[0].set_yscale('log')
-    fig.savefig(f'{name}/netOut_{epoch}_log.png')
+    fig.savefig(f'{name}/training/netOut_{epoch}_log.png')
     plt.close()

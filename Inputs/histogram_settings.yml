@@ -1,18 +1,18 @@
 top1pt:
  min: 0
  max: 1600
- nbins: 50
+ nbins: 40
 top2pt: 
  min: 0
  max: 1600
- nbins: 50
+ nbins: 40
 top1eta:
- min: -2.5
- max: 2.5
+ min: -5.
+ max: 5.
  nbins: 20
 top2eta:
- min: -2.5
- max: 2.5
+ min: -5.
+ max: 5.
  nbins: 20
 top1phi:
  min: -3.15
@@ -23,13 +23,13 @@ top2phi:
  max: 3.15
  nbins: 20
 top1mass:
- min: 150
- max: 192.5
- nbins: 40
+ min: 100.
+ max: 240.
+ nbins: 50
 top2mass:
- min: 150
- max: 192.5
- nbins: 40
+ min: 100.
+ max: 240.
+ nbins: 50
 mtt:
  min: 250
  max: 2000
@@ -37,15 +37,15 @@ mtt:
 tops_pt:
  min: 0
  max: 800
- nbins: 50
+ nbins: 40
 avg_top_pt:
  min: 0
  max: 600
- nbins: 50
+ nbins: 40
 lep_pt:
  min: 0
  max: 600
- nbins: 50
+ nbins: 40
 lep_eta:
  min: -2.5
  max: 2.5
@@ -66,6 +66,22 @@ met_phi:
  min: -3.15
  max: 3.15
  nbins: 20
+jet0_pt:
+ min: 0
+ max: 600
+ nbins: 50
+jet0_eta:
+ min: -2.5
+ max: 2.5
+ nbins: 20
+jet0_phi:
+ min: -3.15
+ max: 3.15
+ nbins: 20
+jet0_mass:
+ min: 0
+ max: 200
+ nbins: 50
 jet1_pt:
  min: 0
  max: 600

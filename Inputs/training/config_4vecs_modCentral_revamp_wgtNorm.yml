@@ -1,10 +1,10 @@
-name: /uscms_data/d3/honor/Outputs_nlo/training/modCentral_revamp_WgtNorm
+name: /uscms_data/d3/honor/Outputs_nlo/training/modCentral_WgtNorm_perSet_validation
 signalSample: 
-- /uscms/home/honor/nobackup/Outputs_nlo/pretraining/dataframe_TT01j1l_modCentral_tops_.pkl.gz
+- /uscms/home/honor/nobackup/Outputs_nlo/pretraining/dataframe_TT01j1l_modCentral_validation_tops_.pkl.gz
 backgroundSample:
 - /uscms/home/honor/nobackup/Outputs_nlo/pretraining/dataframe_2017_TTToSemiLeptonic_partial2_tops_.pkl.gz
 signalMetadata:
-- /uscms/home/honor/nobackup/Outputs_nlo/pretraining/metadata_TT01j1l_modCentral_tops_.json
+- /uscms/home/honor/nobackup/Outputs_nlo/pretraining/metadata_TT01j1l_modCentral_validation_tops_.json
 backgroundMetadata:
 - /uscms/home/honor/nobackup/Outputs_nlo/pretraining/metadata_2017_TTToSemiLeptonic_partial2_tops_.json
 device: cuda
@@ -19,9 +19,30 @@ features:
 - top2phi
 - top2mass
 batchSize: 1000
-epochs: 20
+epochs: 40
 normalization: weightMean
 learningRate: 1.0e-05
 patience: 10
 factor: 0.1
 delta: 1.0e-04
+wgtmeans:
+- 6.333024739026051
+- 6.3307505360495675
+fmeans:
+- 180.57676239541564
+- -0.0008076916327295051
+- 0.0008539043046002917
+- 172.30783018230437
+- 137.58820872931105
+- -0.0009614493370851657
+- -0.0003143883610663276
+- 172.2064072132492
+fstds:
+- 175.13217453101873
+- 1.6730556782557093
+- 1.8144985621557754
+- 5.263054021094076
+- 154.0839819084099
+- 1.9530044359349763
+- 1.8131857761769439
+- 5.421770955112169

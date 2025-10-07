@@ -1,5 +1,5 @@
 *.ipynb
 *.root
-*.sh
 .ipynb_checkpoints
 __pycache__
+Inputs/training/old_configs/

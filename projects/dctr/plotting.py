@@ -12,12 +12,6 @@ def get_ratio(numer, denom):
     ratio[mask] = numer[mask]/denom[mask]
     return ratio
 
-def get_chi2(exp, obs):
-    mask = (exp > 0) & (obs > 0)
-    chi2 = np.ones(exp.shape)
-    chi2[mask] = ((np.power(obs-exp, 2)/exp)/len(obs))[mask]
-    return chi2
-
 def get_delta_ratio(initial, reweight):
     mask = (initial == 1.) & (reweight == 1.)
     dr = (np.abs(initial-1)-np.abs(reweight-1))/np.abs(initial-1)
@@ -68,8 +62,8 @@ def plot_reweight(histo, config, makeLog=False,
     sbratio = get_ratio(    bkgnd.values(), signal.values())
 
     #default ratio
-    axes[1].scatter(bins, bratio, marker='^', color='blue');
     axes[1].scatter(bins, sratio, marker='v', color='orange');
+    axes[1].scatter(bins, bratio, marker='^', color='blue');
     axes[1].scatter(bins, bsratio, s=8, marker='+', color=default_cycler[0]);
     axes[1].scatter(bins, sbratio, s=4, marker='x', color='#ffc35b');
     axes[1].set_ylabel(r'$r =$ rwgt / target', fontsize=14)
@@ -85,8 +79,8 @@ def plot_reweight(histo, config, makeLog=False,
         plt.subplots_adjust(hspace=0.2)
         dr_bkg = get_delta_ratio(bsratio, bratio)
         dr_sig = get_delta_ratio(sbratio, sratio)
-        axes[2].scatter(bins, dr_bkg,  color='blue')
         axes[2].scatter(bins, dr_sig,  color='orange')
+        axes[2].scatter(bins, dr_bkg,  color='blue')
         
         axes[2].set_ylabel(r'$\frac{\Delta |r-1|}{|r-1|}$', fontsize=16)
         plt.grid('both')  
