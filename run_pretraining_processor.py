@@ -16,7 +16,8 @@ LST_DATASET_FORMATS = ["sbi", "dctr"]
 
 def main():
     parser = argparse.ArgumentParser(description='You can customize your run')
-    parser.add_argument('jsonFile'        , nargs='?', help = 'Json file containing files and metadata')
+    parser.add_argument('project',  help='Specify project for formatting')
+    parser.add_argument('jsonFile', nargs='?', help = 'Json file containing files and metadata')
     parser.add_argument('--executor', '-x', default='futures', help = 'Which executor to use')
     parser.add_argument('--prefix',   '-r', nargs='?', default='fnalEOS', help = 'Prefix or redirector to look for the files')
     parser.add_argument('--nworkers', '-n', default=4  , help = 'Number of workers')
@@ -26,15 +27,15 @@ def main():
     parser.add_argument('--postname', '-m', default='')
     parser.add_argument('--treename'      , default='Events', help = 'Name of the tree inside the files')
     parser.add_argument('--port', default='9123-9130', help = 'Specify the Work Queue port. An integer PORT or an integer range PORT_MIN-PORT_MAX.')
-    parser.add_argument('--outFormat','-u', default='dctr', help='Specify output format')
     # ARGUMENTS FOR DCTR RUNNING
     parser.add_argument('--rwgtcard', '-w', default=None, help='Name of the reweight card used to generate the EFT sample.')
     parser.add_argument('--processor','-p', default='tops', help='Specify processor')
     parser.add_argument('--validation', '-v', action="store_true", default=False, help='Should files be saved for validation?')
     # ARGUMENTS FOR SBI RUNNING
-    parser.add_argument('--runFit',   '-f', default=True, help='Run own fitting for structure coefficients')
+    parser.add_argument('--runFit', '-f', action="store_true", help='Run own fitting for structure coefficients')
     
     args        = parser.parse_args()
+    project     = args.project
     jsonFile    = args.jsonFile
     executor    = args.executor
     prefix      = args.prefix
@@ -46,31 +47,19 @@ def main():
     treename    = args.treename
     proc        = args.processor
     runFit      = args.runFit
-    outFormat   = args.outFormat
 
-    
     if outpath is None:
-        if outFormat=="sbi":
+        if project=="sbi":
             outpath = "/uscms_data/d3/honor/Outputs_sbi/pretraining"
-        elif outFormat=="dctr":
+        elif project=="dctr":
             outpath = "/uscms_data/d3/honor/Outputs_nlo/pretraining"
     if executor=="debug":
         outpath = os.path.join(outpath, "testing")
         
     #proc_file = proc+'.py'
     #print("\n running with processor: ", proc_file, '\n')
-
     if executor not in LST_OF_KNOWN_EXECUTORS:
         raise Exception(f"The \"{executor}\" executor is not known. Please specify an executor from the known executors ({LST_OF_KNOWN_EXECUTORS}). Exiting.")
-
-    if executor == "work_queue":
-        port = list(map(int, args.port.split('-')))
-        if len(port) < 1:
-            raise ValueError("At least one port value should be specified.")
-        if len(port) > 2:
-            raise ValueError("More than one port range was specified.")
-        if len(port) == 1:
-            port.append(port[0])
 
     # PREPARE THE FILESET
     fileset = uFiles.construct_fileset([jsonFile], prefix=prefix)
@@ -82,7 +71,7 @@ def main():
         print(SMweight_idx)
     else:
         SMweight_idx = 0
-    if outFormat=='dctr' and args.validation:
+    if project=='dctr' and args.validation:
         n = 5
         dataset_name = list(fileset.keys())[0]
         flist = fileset[dataset_name]
@@ -102,7 +91,7 @@ def main():
 
     # PREP THE PROCESSOR
     tstart = time.time()
-    if args.outFormat=="sbi":
+    if project=="sbi":
         import pretraining.ml_data as ml_data
         processor_instance = ml_data.SemiLepProcessor(runFit=runFit)
     elif proc == 'tops':
@@ -121,21 +110,19 @@ def main():
 
     # PRINT processing stats
     dt = time.time() - tstart
-    nevts_total = output['metadata']['nInputEvents']
+    nevts_total = output['metadata']['InputEventCount']
     print(f'Processed {nevts_total} events in {dt:.2f} seconds ({nevts_total/dt:.2f} evts/sec).')
-    if executor == "work_queue":
-        print(f'Processed {nevts_total} events in {dt:.2f} seconds ({nevts_total/dt:.2f} evts/sec).')
-    elif executor == "futures":
+    if executor == "futures":
         print(f'Processing time: {dt:.2f} seconds with {nworkers} ({dt*nworkers:.2f} cpu overall)')
 
     # OUTPUT
     if not os.path.isdir(outpath): os.system("mkdir -p %s"%outpath)
-    if args.outFormat == "sbi":
+    if project == "sbi":
         from torch import save, seed, float64
         from torch.utils.data import random_split, TensorDataset
 
         # Split samples
-        train, test, val = random_split(TensorDataset(output['features'].get(), output['fit_coefs'].get()), [0.7, 0.2, 0.1])
+        train, test, val = random_split(TensorDataset(output['features'].get(), output['fit_coefs'].get()), [0.8, 0.1, 0.1])
         # Save the outputs
         print(f"\nSaving output in {outpath} ...")
         save(TensorDataset(train[:][0], train[:][1]), os.path.join(outpath,"train.p"))
@@ -147,7 +134,7 @@ def main():
         output['metadata']['nTest']  = test[:][0].shape[0]
         output['metadata']['nVal']   = val[:][0].shape[0]
         util.save(output['metadata'], os.path.join(outpath,"metadata.coffea"))
-    elif args.outFormat == "dctr":
+    elif project == "dctr":
         import cloudpickle
         import gzip
         outname = jsonFile.split("/")[-1].replace(".json","")

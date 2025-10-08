@@ -2,13 +2,11 @@ import awkward as ak
 import numpy as np
 import pandas as pd
 
-#from coffea import processor
 from coffea.processor import ProcessorABC, dict_accumulator, defaultdict_accumulator
-from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
+from coffea.nanoevents import NanoAODSchema
 from coffea.analysis_tools import PackedSelection
 
 from .DataframeAccumulator import DataframeAccumulator
-#from pretraining.selection import is_clean
 
 NanoAODSchema.warn_missing_crossrefs = False
 np.seterr(divide='ignore', invalid='ignore', over='ignore')

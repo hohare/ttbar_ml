@@ -8,9 +8,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from training.EarlyStopper import EarlyStopper
 
-import training.network_plotting as myplt
-
-def main(config, project):
+def main(project, config):
     #Check for GPU availability and fall back on CPU if needed
     if config['device'] != 'cpu' and not cuda.is_available():
         print("Warning, you tried to use cuda, but its not available. Will use the CPU")
@@ -18,12 +16,13 @@ def main(config, project):
     if config['device'] == 'cuda': print('Will run using cuda!')
 
     os.makedirs(config['name']+"/training", mode=0o755, exist_ok=True)
-    
+
+    print('Loading data...')
     if project=="sbi":
         # Load dataset features and structure coefficients
-        print('Loading data...')
         from projects.sbi.net import Model
         import training.weight_manager as wgtMan
+        import projects.sbi.network_plotting as myplt
 
         train = load(f'{config["data"]}/train.p', map_location=device(config['device']), weights_only=False)
         test  = load(f'{config["data"]}/test.p', map_location=device(config['device']), weights_only=False)
@@ -32,9 +31,12 @@ def main(config, project):
         test[:][0][:]  = (test[:][0] - test[:][0].mean(0))/test[:][0].std(0)
         # Change dataset structure coefficients to background and signal weights
         train, test = wgtMan.calculate_weights(train, test, config)
+
+        model = Model(nFeatures=train[:][0].shape[1],device=config['device'], config=config['network'])
     elif project=="dctr":
         from projects.dctr.net import Model
-
+        import training.network_plotting as myplt
+        
         train = load(config["traindata"], map_location=device(config['device']), weights_only=False)
         test  = load(config["testdata"], map_location=device(config['device']), weights_only=False)
         
@@ -46,7 +48,7 @@ def main(config, project):
     # Prepare for training
     optimizer = optim.Adam(model.net.parameters(), lr=config['learningRate'])
     scheduler = ReduceLROnPlateau(optimizer, 'min', factor=config['factor'], patience=config['patience'])
-    stopper   = EarlyStopper(tolerance=config['patience']+1, delta=1e-4)
+    stopper   = EarlyStopper(tolerance=config['patience']+1, delta=config['delta'])
     trainLoss = [model.loss(train[:][0], train[:][1], train[:][2]).item()]
     testLoss  = [model.loss(test[:][0],  test[:][1],  test[:][2]).item()]
 
@@ -55,7 +57,7 @@ def main(config, project):
         if epoch%10==0: 
             myplt.plot_losses(testLoss, trainLoss, config['name'], epoch)
             myplt.plot_network(model.net, test, config['name'], epoch)
-        totloss = 0 
+        totloss = 0 #sometime train tensor is too big to calc on whole
         for features, weights, weights_or_label in dataset_batches:
             optimizer.zero_grad()
             loss = model.loss(features, weights, weights_or_label)
@@ -66,7 +68,6 @@ def main(config, project):
         trainLoss.append((totloss/len(dataset_batches)).detach().cpu().numpy())
         #trainLoss.append(model.loss(train[:][0], train[:][1], train[:][2]).item())
         testLoss.append(model.loss(test[:][0], test[:][1], test[:][2]).item())
-        #print(trainLoss[-1], testLoss[-1], stopper.counter)
         scheduler.step(testLoss[epoch])
         stopper(testLoss[-1])
         if stopper.stop_early:
@@ -74,9 +75,7 @@ def main(config, project):
             break
 
     print("Plotting network results...")
-    myplt.plot_losses(testLoss, trainLoss, config['name'], epochs)
-    myplt.plot_network(model.net, test, config['name'], epochs)
-    myplt.plot_network_end(model.net, test, train, config['name'], epochs)
+    myplt.plot_network_end(model.net, test, train, testLoss, trainLoss, config['name'], epoch+1)
     # Save network final results
     print("Saving network...")
     net = model.net.to('cpu') #Recommended by pytorch
@@ -85,13 +84,13 @@ def main(config, project):
 
 if __name__=="__main__":
     parser = ArgumentParser()
-    parser.add_argument('config', help = 'configuration yml file used for training')
     parser.add_argument('project', help = 'which project is this for?')
+    parser.add_argument('config', help = 'configuration yml file used for training')
     args = parser.parse_args()
     
     #Load the configuration options and build the WC lists
     #with open("/uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_basic/"+parser.parse_args().config, 'r') as f:
     with open(args.config) as f:
         config = safe_load(f)
-    main(config, args.project)
+    main(args.project, config)
     

@@ -1,27 +1,26 @@
-from coffea.nanoevents import NanoAODSchema
-from coffea import processor
 import awkward as ak
 import numpy as np
 from torch import float64, tensor, from_numpy
+from coffea.nanoevents import NanoAODSchema
+from coffea.processor import ProcessorABC, defaultdict_accumulator
 
-import fitCoefficients as fitCoefs
-from analysis_tools import genObjectSelection, genEventSelection, TensorAccumulator
-import calculate_variables as cVars
+from .fitCoefficients import calculate_fit
+from .analysis_tools import genObjectSelection, genEventSelection
+from .TensorAccumulator import TensorAccumulator
 
 NanoAODSchema.warn_missing_crossrefs = False
 
-class SemiLepProcessor(processor.ProcessorABC):
+class SemiLepProcessor(ProcessorABC):
     def __init__(self, runFit=True, dtype=float64):
         self.runFit = runFit
         self._dtype = float64
         #self.coefficients = coefficients
-        #self._samples = samples
        
     def accumulator(self):
         return self._accumulator
         
     def process(self, events):   
-        metadata = processor.defaultdict_accumulator(float)
+        metadata = defaultdict_accumulator(float)
 
         # Selection
         cleanleps, cleanjets = genObjectSelection(events)
@@ -36,7 +35,7 @@ class SemiLepProcessor(processor.ProcessorABC):
         residuals = TensorAccumulator(tensor([]), dtype=self._dtype)
         if self.runFit:
             # Using the weights to fit for coefficients
-            eft_coeffs, _ = fitCoefs.calculate(events.LHEWeight.fields, events.LHEWeight[event_mask])
+            eft_coeffs, _ = calculate_fit(events.LHEWeight.fields, events.LHEWeight[event_mask])
         elif hasattr(events, "EFTfitCoefficients"):
             # Using the precalculated coefficients
             eft_coeffs = ak.to_numpy(events.EFTfitCoefficients)

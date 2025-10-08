@@ -23,6 +23,7 @@ factor: 0.1
 learningRate: 1.0e-05
 network: simple
 patience: 10
+delta: 1.0e-05
 startingPoint:
 - 1.0
 - 0.0

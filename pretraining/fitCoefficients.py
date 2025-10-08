@@ -88,7 +88,7 @@ def get_points(fields):
     reweightpoints_array = np.array(reweightpoints)
     return reweightpoints_array
 
-def calculate(fields, weights):
+def calculate_fit(fields, weights):
     fields = [field for field in fields if field.startswith('EFTrwgt')]# or field.startswith('sm')]
     # Acquiring the WC values per reweighting
     reweightpoints_array = get_points(fields)
