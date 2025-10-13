@@ -1,5 +1,5 @@
-from training.net import Net
-from training.weight_manager import expandArray
+from net import Net
+from weight_manager import expandArray
 from torch import device, load, tensor, vstack, float64
 import numpy as np
 from torch.linalg import lstsq
@@ -10,7 +10,7 @@ class likelihood:
         with open(config+"/training.yml") as f:
             self.config = safe_load(f)
         self.net = Net(nFeatures, self.config['device'], self.config['network'])
-        self.net.load_state_dict(load(f'{self.config["name"]}/complete/networkStateDict.p', 
+        self.net.load_state_dict(load(f'{self.config["name"]}/networkStateDict.p', 
                                         map_location=device(self.config['device'])))
     def __call__(self, features, network=None):
         s   = self.net((features - features.mean(0))/features.std(0))
@@ -23,6 +23,7 @@ class fullLikelihood:
         self.config = config
         trainingMatrix = []
         ratios = []
+        # Construct matrices for later fitting
         for i, network in enumerate(self.config['networks']):
             tmp = network.split("\\")[-1]
             print(f'- {tmp}')

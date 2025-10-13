@@ -1,10 +1,11 @@
-data: /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_basic/
-dedicated: trainpt_1p0_3p0_lin
-output: validation_1p0_3p0_asymm3/
+data: /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated/
+name: /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated/
+dedicated: trainpt_1p0_m1p0_lin
+output: validation_1p0_ctq8_m1p0_symm/
 networks:
-- /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_basic/trainpt_1p0_1p0_lin
-- /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_basic/trainpt_1p0_m3p0_lin
-- /uscms_data/d3/honor/Outputs_sbi/training/ctq8_1p22_basic/trainpt_sm_quad
+- /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated/trainpt_1p0_2p0_lin
+- /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated/trainpt_1p0_1p0_lin
+- /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated/trainpt_1p0_m2p0_lin
 device: cuda
 features:
   Lep_pt:

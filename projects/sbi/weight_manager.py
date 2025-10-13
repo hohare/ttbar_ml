@@ -8,7 +8,7 @@ def expandArray(coefs):
     for i in range(len(coefs)):
          for j in range(i+1):
              arrayOut += [coefs[i]*coefs[j]]
-    return array(arrayOut).astype(float32)
+    return array(arrayOut)
 
 def calculate_weights(train, test, config):
     print('Calculating weights...')

@@ -9,11 +9,12 @@ def main(batchconfig, baseconfig):
         return 1
     
     for trainpt in batchconfig['signalTrainingPoint']:
-        output = os.path.join(batchconfig['name'].replace("pre",""),trainpt)
+        output = os.path.join(batchconfig['name'],trainpt)
         baseconfig['signalTrainingPoint'] = batchconfig['signalTrainingPoint'][trainpt]
         baseconfig['data'] = batchconfig['data']
         baseconfig['name'] = output
-    
+
+        print(baseconfig['data'])
         os.makedirs(f'{output}', mode=0o755, exist_ok=True)
         trainfile = f'{output}/training.yml'
         with open(trainfile, 'w') as f:

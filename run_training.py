@@ -27,8 +27,12 @@ def main(project, config):
         train = load(f'{config["data"]}/train.p', map_location=device(config['device']), weights_only=False)
         test  = load(f'{config["data"]}/test.p', map_location=device(config['device']), weights_only=False)
         # Normalize features
-        train[:][0][:] = (train[:][0] - train[:][0].mean(0))/train[:][0].std(0)
-        test[:][0][:]  = (test[:][0] - test[:][0].mean(0))/test[:][0].std(0)
+        train_mean = train[:][0].mean(0)
+        train_std  = train[:][0].std(0)
+        config["trainmeans"] = train_mean
+        config["trainstds"]  = train_std
+        train[:][0][:] = (train[:][0] - train_mean)/train_std
+        test[:][0][:]  = (test[:][0] - train_mean)/train_std
         # Change dataset structure coefficients to background and signal weights
         train, test = wgtMan.calculate_weights(train, test, config)
 

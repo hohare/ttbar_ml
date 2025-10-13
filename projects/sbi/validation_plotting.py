@@ -1,10 +1,11 @@
 from matplotlib.gridspec import GridSpec
 from matplotlib.pyplot import clf, close, figure, subplots, subplots_adjust
+import matplotlib.table as tbl
 from os import makedirs
-from training.metrics import netEval
 from torch import save
-from yaml import dump
+from yaml import dump, safe_load
 import numpy as np
+from metrics import netEval
 
 def histPlot(background, signal, label, outname=None, backgroundWeights=None, signalWeights=False, ylog=False, xlog=False):
     fig, ax = subplots(figsize=[12,8])
@@ -28,6 +29,8 @@ def histPlot(background, signal, label, outname=None, backgroundWeights=None, si
         ax.hist(signal, bins=bins, label='signal', histtype='step')
     ax.set_xlabel(label, fontsize=12)
     ax.legend()
+
+    parametric_table(dedicated, parametric, ax)
     if ylog:
         ax.set_yscale('log')
     if xlog:
@@ -40,7 +43,7 @@ def histPlot(background, signal, label, outname=None, backgroundWeights=None, si
         fig.show()
 
 def ratioPlot(x, dedicatedLR, parametricLR, eftCoeffs, bins, wcs, outname=None, 
-              plotLog=False, ratioLog=False, xlabel=None, showNoWeights=False, density=False):
+              plotLog=False, ratioLog=False, xlabel=None, showNoWeights=True, density=False):
     from hist.axis import Regular, StrCategory
     from topcoffea.modules.histEFT import HistEFT
     ax  = []
@@ -117,9 +120,48 @@ def ratioPlot(x, dedicatedLR, parametricLR, eftCoeffs, bins, wcs, outname=None,
     if xlabel:
         ax[1].set_xlabel(xlabel, fontsize=12)
     ax[1].set_xlim(ax[0].get_xlim())
+    return fig, ax
     if outname:
         fig.savefig(f'{outname}')
         clf()
         close()
     else:
         fig.show()
+
+def parametric_table(dedicated, config):
+    # Opening the config files
+    with open(dedicated+"/training.yml", 'r') as f:
+        ded = safe_load(f)
+    parametric = []
+    for net in config['networks']:
+        with open(net+"/training.yml", 'r') as f:
+            parametric.append(safe_load(f))
+    # Checking that the configs match
+    keys = ['backgroundTrainingPoint', 'startingPoint', 'wcs']
+    for key in keys:
+        for net in parametric:
+            if net[key] != ded[key]:
+                print(f'mismatch of {key} for {net["name"]}')
+                break
+    # Preparing the data
+    rows = ['cSM']+ded['wcs']
+    columns = ['gen', 'ref', 'ded']
+    for i in range(len(parametric)):
+        columns.append(f'par{i}')
+    key = 'signalTrainingPoint'
+    data = [np.array(ded['startingPoint']).T,
+            np.array(ded['backgroundTrainingPoint']).T,
+            np.array(ded['signalTrainingPoint']).T]
+    for net in parametric:
+        data.append(np.array(net[key]).T)
+    data = np.stack(np.array(data),axis=1)
+
+    colors = np.array([np.array([0]*len(rows))]*len(columns))
+    colors = np.where(abs(data)>0, 'cyan', 'w')
+    return data, rows, columns, colors
+    # Making the table
+    the_table = tbl.table(cellText=data, rowLabels=rows, colLabels=columns,
+                          cellLoc='center', loc='right',
+                          colWidths=np.ones(len(columns))*0.1
+                         )
+    return the_table

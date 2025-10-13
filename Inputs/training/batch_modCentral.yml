@@ -1,0 +1,110 @@
+data: /uscms_data/d3/honor/Outputs_sbi/pretraining/modCentral_updated
+name: /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated_moderate
+signalTrainingPoint:
+    trainpt_1p0_ctq8_4p0: 
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 4.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_ctq8_3p0: 
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 3.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_ctq8_2p0: 
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 2.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_ctq8_1p0: 
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_ctq8_0p5: 
+    - 1.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.5
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+wcs:
+- ctGIm
+- ctGRe
+- cQj38
+- cQj18
+- cQu8
+- cQd8
+- ctj8
+- ctu8
+- ctd8
+- cQj31
+- cQj11
+- cQu1
+- cQd1
+- ctj1
+- ctu1
+- ctd1
