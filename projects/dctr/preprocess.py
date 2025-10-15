@@ -63,7 +63,6 @@ def prep_dataset(dataset, config, validation=False, masking=True, verbose=False)
     #xsec normalization
     sig_norm = xsecs['UL2017']['modCentral'] / sig_sow * lumis['UL2017']*1000.
     bkg_norm = xsecs['UL2017']['powheg']     / bkg_sow * lumis['UL2017']*1000.
-    print(sig_norm)
     wgts = where(dataset[:][2]==1., dataset[:][1]*sig_norm, dataset[:][1]*bkg_norm)
     #weight normalization
     if not validation and config['normalization']=='weightMean':
@@ -109,20 +108,18 @@ def create_train_dataset(config, validation=False):
     cap = np.min([int(3e6), sig_df.shape[0], bkg_df.shape[0]])
     print('Keeping {:.2E} events per dataset'.format(cap))
     # Shuffle and Convert pandas dataframes to pytorch tensors
-#    sig_dataset, sig_non_features = convert_to_net_tensors(config, sig_df.sample(cap), isEFT=True)
-#    bkg_dataset, bkg_non_features = convert_to_net_tensors(config, bkg_df.sample(cap), isEFT=False)
-    sig_dataset, sig_non_features = convert_to_net_tensors(config, sig_df[:cap], isEFT=True)
-    bkg_dataset, bkg_non_features = convert_to_net_tensors(config, bkg_df[:cap], isEFT=False)
+    sig_dataset, sig_non_features = convert_to_net_tensors(config, sig_df.sample(cap), isEFT=True)
+    bkg_dataset, bkg_non_features = convert_to_net_tensors(config, bkg_df.sample(cap), isEFT=False)
     
     # Combine datasets into single TensorDataset
     dataset = TensorDataset(
-        cat([bkg_dataset[:][0][:cap], sig_dataset[:][0][:cap]]),
-        cat([bkg_dataset[:][1][:cap], sig_dataset[:][1][:cap]]),
-        cat([bkg_dataset[:][2][:cap], sig_dataset[:][2][:cap]]),
+        cat([bkg_dataset[:][0], sig_dataset[:][0]]),
+        cat([bkg_dataset[:][1], sig_dataset[:][1]]),
+        cat([bkg_dataset[:][2], sig_dataset[:][2]]),
     )
         
     # Split dataset into training and testing
-    train, test = random_split(dataset, [1., 0.])
+    train, test = random_split(dataset, config['split'])
 
     # feature and weight normalization
     train, config = prep_dataset(train, config)

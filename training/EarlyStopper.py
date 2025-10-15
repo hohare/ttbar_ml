@@ -1,5 +1,3 @@
-
-
 class EarlyStopper:
     def __init__(self, tolerance, delta):
         self.tolerance = tolerance

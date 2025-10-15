@@ -20,8 +20,8 @@ with open('Inputs/histogram_settings.yml') as f:
     histo_settings = yaml.safe_load(f)
 
 class ReweightingProc(ProcessorABC):
-    def __init__(self, hlist, metadata, runRwgt, config, runVars=False):
-        self.hlist = hlist
+    def __init__(self, hset, metadata, runRwgt, config, runVars=False):
+        self.hset = hset
         self.metadata = metadata
         self.runRwgt = runRwgt
         self.config = config
@@ -38,27 +38,25 @@ class ReweightingProc(ProcessorABC):
                                       name=variable, label=variable),
                     hist.axis.StrCategory(["powheg","eft"], name='dataset', label='dataset'),
                     hist.axis.IntCategory([0,1], name='postrwgt', label='postrwgt'),
-                    hist.axis.Regular(50, 0., 6., name="factor", label="factor"),
+                    hist.axis.IntCategory([0,1], name='sel', label='Selection'),
+                    #hist.axis.Regular(50, 0., 6., name="factor", label="factor"),
                     storage='Weight'
                 )
             else:
                 print(f'Histogram for variable {variable} not defined.')
-                self.hlist.remove(variable)
+                del self.hset[variable]
         # POST SELECTION
-        for variable in self.hlist:
-            if variable in histo_settings.keys():
-                output[variable+"_sel"] = hist.Hist(
-                    hist.axis.Regular(histo_settings[variable]['nbins'], 
-                                      histo_settings[variable]['min'], 
-                                      histo_settings[variable]['max'], 
+        for variable in self.hset:
+            if variable in hset.keys():
+                output[variable] = hist.Hist(
+                    hist.axis.Regular(hset[variable]['nbins'], 
+                                      hset[variable]['min'], 
+                                      hset[variable]['max'], 
                                       name=variable, label=variable),
                     hist.axis.StrCategory(["powheg","eft"], name='dataset', label='dataset'),
                     hist.axis.IntCategory([0,1], name='postrwgt', label='postrwgt'),
                     storage='Weight'
                 )
-            else:
-                print(f'Histogram for variable {variable} not defined.')
-                self.hlist.remove(variable)
                 
         output["factor"] = hist.Hist(
             hist.axis.Regular(40, 0., 6., name="factor", label="factor"),
@@ -77,10 +75,6 @@ class ReweightingProc(ProcessorABC):
 
     def accumulator(self):
         return self._accumulator
-
-    @property
-    def columns(self):
-        return self._columns
         
     def process(self, events):
         ######## Parameters ########
@@ -110,6 +104,11 @@ class ReweightingProc(ProcessorABC):
         lower_mask = (tops[:,0].mass >= 152.) & (tops[:,1].mass >= 152.)
         selections.add('m_t', upper_mask & lower_mask)
 
+        tmp_mask = (tops[:,0].mass <= 160.) & (tops[:,1].mass <= 160.)
+        selections.add('lowM', tmp_mask)
+        tmp_mask = (tops[:,0].mass >=180.) & (tops[:,1].mass <= 186.)
+        selections.add('highM', tmp_mask)
+
         top_event_mask = selections.all('2t', 'm_t')
         tops_idx = ak.argsort(tops.pt, ascending=False)
         tops = tops[tops_idx]
@@ -130,14 +129,13 @@ class ReweightingProc(ProcessorABC):
 
         ######## Reweight Calculation ########
             # Calculate weights
-        sow = self.metadata[dataset]['sumOfWeights']   
+        sow = self.metadata[dataset]['sumOfWeights']
         norm = self.metadata[dataset]['xsec'] * lumis[year]*1000.0 / sow 
         #print(norm)
         if hasattr(events.LHEWeight, 'sm_point'):
             weights = events.LHEWeight.sm_point
         else:
             weights = events.genWeight
-        #wgt_mask = (weights[top_event_mask]>=0.)
         # Calculate reweight to powheg NLO
         if self.runRwgt: 
             factor = rwgt.calculate_reweight(top_info, self.config, isEFT)
@@ -149,8 +147,6 @@ class ReweightingProc(ProcessorABC):
         
         output['wgts'].fill(wgts=evt_weights_orig[top_event_mask], dataset=labels)
         output['factor'].fill(factor=factor, dataset=labels)
-
-        #output['metadata'][dataset]['sumWgtMask'] += ak.sum(wgt_mask)
         
         ######## Lep, Jet Selection ########
         if self.runVars:
@@ -159,16 +155,21 @@ class ReweightingProc(ProcessorABC):
             ######## Event selections ########
             exactly_one_lep  = ak.num(leps)==1
             minimum_four_jets = ak.num(jets)>=4
-            minimum_met = events.GenMET.pt[top_event_mask] >= 20.
+            minimum_met = events.GenMET.pt[top_event_mask] >= 15.
 
             selections = PackedSelection()
             selections.add('1L', exactly_one_lep)
             selections.add('4pJets', minimum_four_jets)
             selections.add('minMET20', minimum_met)
             event_selection_mask = selections.all('1L', '4pJets', 'minMET20')
-            
+
+            output['metadata'][dataset]['nEvtsPass_maskNLep'] += ak.sum(exactly_one_lep)
+            output['metadata'][dataset]['nEvtsPass_maskNJets'] += ak.sum(minimum_four_jets)
+            output['metadata'][dataset]['nEvtsPass_maskMET'] += ak.sum(minimum_met)
             output['metadata'][dataset]['nSelectedEvents'] += ak.sum(event_selection_mask)
-        
+
+            passSel = ak.where(event_selection_mask, 1, 0)
+            
             ######## Apply event selections ########
             leps = leps[event_selection_mask]
             jets = jets[event_selection_mask]
@@ -201,13 +202,15 @@ class ReweightingProc(ProcessorABC):
             "dataset": labels,
             "postrwgt": 0,
             "weight": evt_weights_orig[top_event_mask],
-            'factor': factor
+            #'factor': factor,
+            'sel': passSel
         }
         fill_info_rwgt = {
             "dataset": labels,
             "postrwgt": 1,
             "weight": evt_weights_rwgt,
-            'factor': factor
+            #'factor': factor,
+            'sel': passSel
         }
         for variable in self.config['features']:
             #for now only handling top info
@@ -232,13 +235,12 @@ class ReweightingProc(ProcessorABC):
                 "postrwgt": 1,
                 "weight": evt_weights_rwgt[event_selection_mask],
             }
-            for variable in self.hlist:
-                var_name = variable+"_sel"
+            for variable in self.hset:
                 fill_info.update({variable: var_info[variable]})
-                output[var_name].fill(**fill_info)
+                output[variable].fill(**fill_info)
                 if self.runRwgt:
                     fill_info_rwgt.update({variable: var_info[variable]})
-                    output[var_name].fill(**fill_info_rwgt)
+                    output[variable].fill(**fill_info_rwgt)
                 del fill_info[variable]
                 del fill_info_rwgt[variable]
                 

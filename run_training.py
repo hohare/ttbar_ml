@@ -2,7 +2,6 @@ import os
 from argparse import ArgumentParser
 from tqdm import tqdm
 from yaml import safe_load
-
 from torch import cuda, load, optim, save, device
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
@@ -34,6 +33,10 @@ def main(config, project):
         train, test = wgtMan.calculate_weights(train, test, config)
     elif project=="dctr":
         from projects.dctr.net import Model
+        from projects.dctr.preprocess import create_train_dataset
+        
+        # Reweight to SM, xsec normalization, feature normalization
+        config = create_train_dataset(config, validation=False)
 
         train = load(config["traindata"], map_location=device(config['device']), weights_only=False)
         test  = load(config["testdata"], map_location=device(config['device']), weights_only=False)
@@ -68,15 +71,16 @@ def main(config, project):
         testLoss.append(model.loss(test[:][0], test[:][1], test[:][2]).item())
         #print(trainLoss[-1], testLoss[-1], stopper.counter)
         scheduler.step(testLoss[epoch])
-        stopper(testLoss[-1])
-        if stopper.stop_early:
-            print(f'Stopping early after {epoch} epochs')
-            break
+        if config['delta']:
+            stopper(testLoss[-1])
+            if stopper.stop_early:
+                print(f'Stopping early after {epoch} epochs')
+                break
 
     print("Plotting network results...")
-    myplt.plot_losses(testLoss, trainLoss, config['name'], epochs)
-    myplt.plot_network(model.net, test, config['name'], epochs)
-    myplt.plot_network_end(model.net, test, train, config['name'], epochs)
+    myplt.plot_losses(testLoss, trainLoss, config['name'], epoch)
+    myplt.plot_network(model.net, test, config['name'], epoch)
+    myplt.plot_network_end(model.net, test, train, config['name'], epoch)
     # Save network final results
     print("Saving network...")
     net = model.net.to('cpu') #Recommended by pytorch
@@ -85,8 +89,8 @@ def main(config, project):
 
 if __name__=="__main__":
     parser = ArgumentParser()
-    parser.add_argument('config', help = 'configuration yml file used for training')
     parser.add_argument('project', help = 'which project is this for?')
+    parser.add_argument('config', help = 'configuration yml file used for training')
     args = parser.parse_args()
     
     #Load the configuration options and build the WC lists
