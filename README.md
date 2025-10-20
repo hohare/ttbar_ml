@@ -24,8 +24,14 @@ After first time setup has been completed, you need to activate the virtual envi
 ```
 source activate_env.sh
 ```
+
+# Step 0.2: Choose dataset
+`ttbar_utilities/filing/` contains useful methods for constructing a list of .root files to be used for a project.
+Running a coffea processor requires having a python dictionary with the dataset name as the key and the list of .root files as the value. 
+We store these dictionaries in .json files under `Inputs/pretraining/`
+
 # Step 1: Extract information from root files (pretraining)
-Running a coffea processor requires having a python dictionary with the dataset name as the key and the list of .root files as the value. The script does not currently handle more than one dataset in the dictionary (will put everything into a single object regardless of dataset).
+The script does not currently handle more than one dataset in the dictionary (will put everything into a single object regardless of dataset).
 
 Pretraining varies slightly for the projects supported by this repository.
 Currently, the dctr project outputs training features and non-training variables into a pandas dataframe whereas the sbi project directly concatenates pytorch tensors. The goal is to eventually have both output pytorch tensors (after we are confident in the ability of our selected features to perform up to standards).
