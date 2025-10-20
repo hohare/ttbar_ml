@@ -2,7 +2,6 @@ import os
 from argparse import ArgumentParser
 from tqdm import tqdm
 from yaml import safe_load
-
 from torch import cuda, load, optim, save, device
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
@@ -41,6 +40,11 @@ def main(project, config):
         from projects.dctr.net import Model
         import training.network_plotting as myplt
         
+        from projects.dctr.preprocess import create_train_dataset
+        
+        # Reweight to SM, xsec normalization, feature normalization
+        config = create_train_dataset(config, validation=False)
+
         train = load(config["traindata"], map_location=device(config['device']), weights_only=False)
         test  = load(config["testdata"], map_location=device(config['device']), weights_only=False)
         
@@ -73,10 +77,11 @@ def main(project, config):
         #trainLoss.append(model.loss(train[:][0], train[:][1], train[:][2]).item())
         testLoss.append(model.loss(test[:][0], test[:][1], test[:][2]).item())
         scheduler.step(testLoss[epoch])
-        stopper(testLoss[-1])
-        if stopper.stop_early:
-            print(f'Stopping early after {epoch} epochs')
-            break
+        if config['delta']:
+            stopper(testLoss[-1])
+            if stopper.stop_early:
+                print(f'Stopping early after {epoch} epochs')
+                break
 
     print("Plotting network results...")
     myplt.plot_network_end(model.net, test, train, testLoss, trainLoss, config['name'], epoch+1)
