@@ -1,4 +1,24 @@
-backgroundTrainingPoint:
+data: /uscms_data/d3/honor/Outputs_sbi/pretraining/modCentral_total
+name: /uscms_data/d3/honor/Outputs_sbi/training_weightDebug/refSM_bkgSM
+backgroundPoint:
+- 1.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+referencePoint:
 - 1.0
 - 0.0
 - 0.0
@@ -21,10 +41,10 @@ device: cuda
 epochs: 40
 factor: 0.1
 learningRate: 1.0e-05
-network: moderate
+network: simple
 patience: 10
 delta: 1.0e-05
-startingPoint:
+generationPoint:
 - 1.0
 - -0.5
 - -0.5

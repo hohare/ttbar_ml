@@ -15,15 +15,15 @@ def main(parametric):
     output = config['name']+config['output']
 
     makedirs(output, mode=0o755, exist_ok=True)
-    cp_command = f'cp {parametric} {output}'
+    cp_command = f'cp projects/sbi/validation/{parametric} {output}'
     system(cp_command)
     
     print('Loading data...')
-    dataset = load(f"{config['data'].replace('train','pretrain')}/validation.p", map_location=device(config['device']), weights_only=False)
+    dataset = load(f"{config['data']}/validation.p", map_location=device(config['device']), weights_only=False)
 
     print('Preparing dedicated likelihood...')
     dlr_obj  = likelihood(dedicated, dataset[:][0].shape[1])
-    dWcs = dlr_obj.config['signalTrainingPoint']
+    dWcs = dlr_obj.config['signalPoint']
     wcDict = {}
     for i, wc in enumerate(dlr_obj.config['wcs']):
         wcDict[wc] = dWcs[i+1]

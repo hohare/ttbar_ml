@@ -1,13 +1,3 @@
-data: /uscms_data/d3/honor/Outputs_sbi/pretraining/modCentral_total/
-name: /uscms_data/d3/honor/Outputs_sbi/training_weightDebug/refGEN_bkgGEN/
-dedicated: trainpt_1p0_ctq8_m1p0
-output: validation_1p0_ctq8_m1p0_asymm/
-networks:
-- /uscms_data/d3/honor/Outputs_sbi/training_weightDebug/refGEN_bkgGEN/trainpt_1p0_ctq8_2p0
-- /uscms_data/d3/honor/Outputs_sbi/training_weightDebug/refGEN_bkgGEN/trainpt_1p0_ctq8_1p0
-- /uscms_data/d3/honor/Outputs_sbi/training_weightDebug/refGEN_bkgGEN/trainpt_1p0_ctq8_m2p0
-- /uscms_data/d3/honor/Outputs_sbi/training_weightDebug/refGEN_bkgGEN/trainpt_1p0_ctq8_m0p5
-device: cuda
 features:
   Lep_pt:
     label: Lepton $p_T$ (GeV)

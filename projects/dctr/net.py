@@ -2,7 +2,7 @@ import torch.nn as nn
 from torch import float64
 from yaml import safe_load
 
-cost =  nn.BCELoss(reduction='mean')
+cost = nn.BCELoss(reduction='mean')
 
 def createModel(nFeatures, network):
     with open(f'projects/dctr/networks/{network}.yml', 'r') as f:

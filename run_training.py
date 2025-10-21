@@ -20,16 +20,16 @@ def main(project, config):
     if project=="sbi":
         # Load dataset features and structure coefficients
         from projects.sbi.net import Model
-        import training.weight_manager as wgtMan
+        import projects.sbi.weight_manager as wgtMan
         import projects.sbi.network_plotting as myplt
 
         train = load(f'{config["data"]}/train.p', map_location=device(config['device']), weights_only=False)
-        test  = load(f'{config["data"]}/test.p', map_location=device(config['device']), weights_only=False)
+        test  = load(f'{config["data"]}/test.p',  map_location=device(config['device']), weights_only=False)
         # Normalize features
         train_mean = train[:][0].mean(0)
         train_std  = train[:][0].std(0)
-        config["trainmeans"] = train_mean
-        config["trainstds"]  = train_std
+        config["trainmeans"] = train_mean.tolist()
+        config["trainstds"]  = train_std.tolist()
         train[:][0][:] = (train[:][0] - train_mean)/train_std
         test[:][0][:]  = (test[:][0] - train_mean)/train_std
         # Change dataset structure coefficients to background and signal weights
@@ -39,7 +39,6 @@ def main(project, config):
     elif project=="dctr":
         from projects.dctr.net import Model
         import training.network_plotting as myplt
-        
         from projects.dctr.preprocess import create_train_dataset
         
         # Reweight to SM, xsec normalization, feature normalization
@@ -57,7 +56,11 @@ def main(project, config):
     optimizer = optim.Adam(model.net.parameters(), lr=config['learningRate'])
     scheduler = ReduceLROnPlateau(optimizer, 'min', factor=config['factor'], patience=config['patience'])
     stopper   = EarlyStopper(tolerance=config['patience']+1, delta=config['delta'])
-    trainLoss = [model.loss(train[:][0], train[:][1], train[:][2]).item()]
+    totloss = 0 # When have large training sample, get memory error if try to do all at once
+    for features, weights, weights_or_label in dataset_batches:
+        totloss += model.loss(features, weights, weights_or_label)
+    trainLoss = [totloss.detach().cpu().numpy()/len(dataset_batches)]
+    #trainLoss = [model.loss(train[:][0], train[:][1], train[:][2]).item()]
     testLoss  = [model.loss(test[:][0],  test[:][1],  test[:][2]).item()]
 
     print('Training...')
