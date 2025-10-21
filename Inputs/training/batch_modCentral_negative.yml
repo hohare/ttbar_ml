@@ -1,12 +1,6 @@
-data: /uscms_data/d3/honor/Outputs_sbi/pretraining/modCentral_updated
-name: /uscms_data/d3/honor/Outputs_sbi/training/modCentral_updated_moderate
-signalTrainingPoint:
-    trainpt_1p0_ctq8_m4p0: 
+signalPoints:
+    trainpt_1p0_cQj38_m4p0: 
     - 1.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
     - 0.0
     - 0.0
     - -4.0
@@ -19,12 +13,12 @@ signalTrainingPoint:
     - 0.0
     - 0.0
     - 0.0
-    trainpt_1p0_ctq8_m3p0: 
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_cQj38_m3p0: 
     - 1.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
     - 0.0
     - 0.0
     - -3.0
@@ -37,12 +31,12 @@ signalTrainingPoint:
     - 0.0
     - 0.0
     - 0.0
-    trainpt_1p0_ctq8_m2p0: 
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_cQj38_m2p0: 
     - 1.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
     - 0.0
     - 0.0
     - -2.0
@@ -55,12 +49,12 @@ signalTrainingPoint:
     - 0.0
     - 0.0
     - 0.0
-    trainpt_1p0_ctq8_m1p0: 
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_cQj38_m1p0: 
     - 1.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
     - 0.0
     - 0.0
     - -1.0
@@ -73,15 +67,19 @@ signalTrainingPoint:
     - 0.0
     - 0.0
     - 0.0
-    trainpt_1p0_ctq8_m0p5: 
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
+    trainpt_1p0_cQj38_m0p5: 
     - 1.0
     - 0.0
     - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
     - -0.5
+    - 0.0
+    - 0.0
+    - 0.0
+    - 0.0
     - 0.0
     - 0.0
     - 0.0

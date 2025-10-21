@@ -13,8 +13,8 @@ def plot_losses(testLoss_lst, trainLoss_lst, label, epoch):
     makedirs(f'{label}', mode=0o755, exist_ok=True)
     
     fig, ax = plt.subplots(1, 1, figsize=[8,5])
-    ax.plot( range(len(testLoss_lst)), trainLoss_lst, label="Training dataset")
-    ax.plot( range(len(testLoss_lst)), testLoss_lst , label="Testing dataset")
+    ax.plot(range(len(testLoss_lst)), trainLoss_lst, label="Training dataset")
+    ax.plot(range(len(testLoss_lst)), testLoss_lst , label="Testing dataset")
     ax.legend()
     ax.set_xlabel('Loss')
     fig.savefig(f'{label}/training/epoch{epoch}_loss.png')
@@ -56,8 +56,8 @@ def plot_network_end(network, testset, trainset, testLoss, trainLoss, name, epoc
 
     #LOSS
     fig, ax = plt.subplots(1, 1, figsize=[8,5])
-    ax.plot( range(len(testLoss)), trainLoss, label="Training dataset")
-    ax.plot( range(len(testLoss)), testLoss, label="Testing dataset")
+    ax.plot(range(len(trainLoss)), trainLoss, label="Training dataset")
+    ax.plot(range(len(testLoss)), testLoss, label="Testing dataset")
     ax.legend()
     ax.set_xlabel('Loss')
     fig.savefig(f'{label}/loss_epoch{epoch}.png')

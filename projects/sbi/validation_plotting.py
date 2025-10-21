@@ -5,7 +5,6 @@ from os import makedirs
 from torch import save
 from yaml import dump, safe_load
 import numpy as np
-from metrics import netEval
 
 def histPlot(background, signal, label, outname=None, backgroundWeights=None, signalWeights=False, ylog=False, xlog=False):
     fig, ax = subplots(figsize=[12,8])
@@ -128,40 +127,37 @@ def ratioPlot(x, dedicatedLR, parametricLR, eftCoeffs, bins, wcs, outname=None,
     else:
         fig.show()
 
+
 def parametric_table(dedicated, config):
     # Opening the config files
     with open(dedicated+"/training.yml", 'r') as f:
         ded = safe_load(f)
-    parametric = []
-    for net in config['networks']:
-        with open(net+"/training.yml", 'r') as f:
-            parametric.append(safe_load(f))
-    # Checking that the configs match
-    keys = ['backgroundTrainingPoint', 'startingPoint', 'wcs']
-    for key in keys:
-        for net in parametric:
-            if net[key] != ded[key]:
-                print(f'mismatch of {key} for {net["name"]}')
-                break
     # Preparing the data
     rows = ['cSM']+ded['wcs']
-    columns = ['gen', 'ref', 'ded']
-    for i in range(len(parametric)):
-        columns.append(f'par{i}')
-    key = 'signalTrainingPoint'
-    data = [np.array(ded['startingPoint']).T,
-            np.array(ded['backgroundTrainingPoint']).T,
-            np.array(ded['signalTrainingPoint']).T]
-    for net in parametric:
-        data.append(np.array(net[key]).T)
+    columns = ['gen', 'ref', 'bkg', 'sig']
+    data = [np.array(ded['generationPoint']).T,
+            np.array(ded['referencePoint']).T,
+            np.array(ded['backgroundPoint']).T,
+            np.array(ded['signalPoint']).T]
+    
+    if config:#IF WANT TO PLOT PARAMETRIC
+        parametric = []
+        for net in config['networks']:
+            with open(net+"/training.yml", 'r') as f:
+                parametric.append(safe_load(f))
+        # Checking that the configs match
+        keys = ['generationPoint', 'wcs']
+        for key in keys:
+            for net in parametric:
+                if net[key] != ded[key]:
+                    print(f'mismatch of {key} for {net["name"]}')
+                    break
+        for i in range(len(parametric)):
+            columns.append(f'par{i}')
+        for net in parametric:
+            data.append(np.array(net['signalPoint']).T)
     data = np.stack(np.array(data),axis=1)
 
     colors = np.array([np.array([0]*len(rows))]*len(columns))
     colors = np.where(abs(data)>0, 'cyan', 'w')
     return data, rows, columns, colors
-    # Making the table
-    the_table = tbl.table(cellText=data, rowLabels=rows, colLabels=columns,
-                          cellLoc='center', loc='right',
-                          colWidths=np.ones(len(columns))*0.1
-                         )
-    return the_table

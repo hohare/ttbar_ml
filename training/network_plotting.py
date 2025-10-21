@@ -52,7 +52,7 @@ def plot_network_end(network, testset, trainset, testLoss, trainLoss, name, epoc
     makedirs(f'{label}', mode=0o755, exist_ok=True)
     #LOSS
     fig, ax = plt.subplots(1, 1, figsize=[8,5])
-    ax.plot( range(len(testLoss)), trainLoss, label="Training dataset")
+    ax.plot( range(len(trainLoss)), trainLoss, label="Training dataset")
     ax.plot( range(len(testLoss)), testLoss, label="Testing dataset")
     ax.legend()
     ax.set_xlabel('Loss')

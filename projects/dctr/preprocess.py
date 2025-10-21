@@ -105,7 +105,7 @@ def create_train_dataset(config, validation=False):
     bkg_df = pd.concat(bkg_df, axis=0)
     
     # Cap number of events in train/test set
-    cap = np.min([int(3e6), sig_df.shape[0], bkg_df.shape[0]])
+    cap = np.min([int(3.1e6), sig_df.shape[0], bkg_df.shape[0]])
     print('Keeping {:.2E} events per dataset'.format(cap))
     # Shuffle and Convert pandas dataframes to pytorch tensors
     sig_dataset, sig_non_features = convert_to_net_tensors(config, sig_df.sample(cap), isEFT=True)
