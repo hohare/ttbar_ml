@@ -1,4 +1,4 @@
-name: /uscms_data/d3/honor/Outputs_nlo/training/modCentral_WgtNorm_perSet_test
+name: /uscms_data/d3/honor/Outputs_nlo/training/modCentral_WgtNorm_test
 signalSample: 
 - /uscms/home/honor/nobackup/Outputs_nlo/pretraining/dataframe_TT01j1l_modCentral_tops_.pkl.gz
 backgroundSample:
@@ -21,10 +21,10 @@ features:
 split: 
 - 0.9
 - 0.1
-batchSize: 1500
-epochs: 5
+batchSize: 1000
+epochs: 80
 normalization: weightMean
 learningRate: 1.0e-05
 patience: 10
 factor: 0.1
-delta: null
+delta: 1.0e-7

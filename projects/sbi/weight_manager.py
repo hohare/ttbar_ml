@@ -12,24 +12,15 @@ def expandArray(coefs):
 
 def calculate_weights(train, test, config):
     print('Calculating weights...')
+    factor = 366.358/6063898 * 41.48*1000#xsec/sow * lumi*1000
     # Calculate weights for train sample at various points
-    trainBW = train[:][1]@expandArray(config['backgroundPoint']).to(device=config['device'])
-    trainSW = train[:][1]@expandArray(config['signalPoint']).to(device=config['device'])
-    trainRW = train[:][1]@expandArray(config['referencePoint']).to(device=config['device'])
+    trainBW = train[:][1]@expandArray(config['backgroundPoint']).to(device=config['device'])*factor
+    trainSW = train[:][1]@expandArray(config['signalPoint']).to(device=config['device'])*factor
+    trainRW = train[:][1]@expandArray(config['referencePoint']).to(device=config['device'])*factor
     # Calculate weights for test sample at various points
-    testBW  = test[:][1]@expandArray(config['backgroundPoint']).to(device=config['device'])
-    testSW  = test[:][1]@expandArray(config['signalPoint']).to(device=config['device'])
-    testRW  = test[:][1]@expandArray(config['referencePoint']).to(device=config['device'])
-
-    # Only positive weights
-    train_noNeg = (trainBW>=0) & (trainSW>=0) & (trainRW>=0)
-    test_noNeg  = (testBW>=0) & (testSW>=0) & (testRW>=0)
-    trainBW = trainBW[train_noNeg]
-    trainSW = trainSW[train_noNeg]
-    trainRW = trainRW[train_noNeg]
-    testBW  = testBW[test_noNeg]
-    testSW  = testSW[test_noNeg]
-    testRW  = testRW[test_noNeg]
+    testBW  = test[:][1]@expandArray(config['backgroundPoint']).to(device=config['device'])*factor
+    testSW  = test[:][1]@expandArray(config['signalPoint']).to(device=config['device'])*factor
+    testRW  = test[:][1]@expandArray(config['referencePoint']).to(device=config['device'])*factor
 
     # Calculating ratio of means for normalization
     #nEvents = testSW.shape[0] + trainSW.shape[0] #always cancels out
@@ -44,6 +35,8 @@ def calculate_weights(train, test, config):
         yaml.dump(config, f)
 
     # Construct the datasets to be (features, backgroundWeights_normalized, signalWeights_normalized)
-    train = TensorDataset(train[:][0][train_noNeg], trainBW/(trainRW*config['bkg2ref']), trainSW/(trainRW*config['sig2ref']))
-    test  = TensorDataset(test[:][0][test_noNeg],  testBW/(testRW*config['bkg2ref']),   testSW/(testRW*config['sig2ref']))
+    #train = TensorDataset(train[:][0], trainBW/(trainRW*config['bkg2ref']), trainSW/(trainRW*config['sig2ref']))
+    #test  = TensorDataset(test[:][0],  testBW/(testRW*config['bkg2ref']),   testSW/(testRW*config['sig2ref']))
+    train = TensorDataset(train[:][0], trainBW, trainSW)
+    test  = TensorDataset( test[:][0],  testBW,  testSW)
     return train, test

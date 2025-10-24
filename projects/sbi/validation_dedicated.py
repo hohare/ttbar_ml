@@ -5,13 +5,18 @@ from torch import device, load
 from yaml import dump, safe_load
 import matplotlib.pyplot as plt
 import matplotlib.table as tbl
+from matplotlib.pyplot import clf, close, figure, subplots, subplots_adjust
+from matplotlib.gridspec import GridSpec
+
 from buildLikelihood import fullLikelihood, likelihood
 from validation_plotting import parametric_table
 
-from matplotlib.pyplot import clf, close, figure, subplots, subplots_adjust
-from matplotlib.gridspec import GridSpec
-from hist.axis import Regular, StrCategory
-from topcoffea.modules.histEFT import HistEFT
+def plot_r(x, dedicatedLR, eftCoeffs, bins, wcs,):
+    import hist
+    h = hist.Hist(
+        #hist.axes.Regular(0, 20., ''),
+    )
+    
 
 def ratioPlot(x, dedicatedLR, parametricLR, eftCoeffs, bins, wcs, outname=None, 
               plotLog=False, ratioLog=False, xlabel=None, showNoWeights=True, density=False):
@@ -38,8 +43,8 @@ def ratioPlot(x, dedicatedLR, parametricLR, eftCoeffs, bins, wcs, outname=None,
     ax.append(fig.add_subplot(gs[5,0:5]))
     subplots_adjust(hspace=0.2)
 
+    
     histEFT.fill(kin=x, eft_coeff=eftCoeffs, category='histEFT')
-
     histEFTEval = histEFT.as_hist(values)
     histEFTEval.plot1d(ax=ax[0], density=density, yerr=False)
     nDedicated,_,_  = ax[0].hist(x, bins=bins, weights=dedicatedLR, label='Dedicated', histtype='step', density=density)
@@ -114,6 +119,8 @@ def main(dedicated):
         feature_list = safe_load(f)
     output = config['name']
 
+    doMask=True
+    
     makedirs(output, mode=0o755, exist_ok=True)
     
     print('Loading data...')
@@ -126,19 +133,45 @@ def main(dedicated):
     for i, wc in enumerate(dlr_obj.config['wcs']):
         wcDict[wc] = dWcs[i+1]
     dlr = dlr_obj(dataset[:][0], dWcs).detach().cpu().numpy()
+    #s, dlr = dlr_obj(dataset[:][0], dWcs)
+    #s=s.detach().cpu().numpy()
+    #dlr=dlr.detach().cpu().numpy()
+    #print(np.min(s), np.max(s))
     
     features = dataset[:][0].detach().cpu().numpy()
     fitCoefs = dataset[:][1].detach().cpu().numpy()
 
-    output = f'{output}/dedicated'
+    folder_name = 'dedicated'
+    if doMask:
+        maxS = 0.99
+        mask = (s<=maxS)
+        dlr = dlr[mask]
+        print('new max',np.max(s[mask]))
+        features = features[mask]
+        fitCoefs = fitCoefs[mask]
+        folder_name += f'_masked_{str(maxS)}'
+
+    output = f'{output}/{folder_name}'
     makedirs(f'{output}/noNorm',  mode=0o755, exist_ok=True)
     makedirs(f'{output}/density', mode=0o755, exist_ok=True)
 
+    fig, ax = plt.subplots()
+    plt.hist(dlr, bins=100, label='dlr')
+    ax.set_title(folder_name)
+    ax.set_xlabel('dlr')
+    ax.set_yscale('log')
+    fig.savefig(f'{output}/dlr_log.png', bbox_inches='tight')
+    plt.show()
+    plt.close()
+
     data, rows, cols, colors = parametric_table(dedicated, None)
-    
     for kinematic, params in feature_list["features"].items():
+        if "jet2" in kinematic: continue
+        elif "jet3" in kinematic: continue
+        elif "jet4" in kinematic: continue
         print(f'- making plots for kinematic {kinematic}')
         bins = np.linspace(params['min'], params['max'], params['nbins'])
+        
         fig, ax = ratioPlot(features[:,params['loc']], dlr, None, fitCoefs, bins, wcDict,
                   xlabel=params['label'])
         tbl.table(ax[0], cellText=data, rowLabels=rows, colLabels=cols,

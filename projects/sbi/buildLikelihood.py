@@ -1,5 +1,5 @@
-from net import Net
-from weight_manager import expandArray
+from .net import Net
+from .weight_manager import expandArray
 from torch import device, load, tensor, vstack, float64, no_grad
 import numpy as np
 from torch.linalg import lstsq
@@ -13,12 +13,11 @@ class likelihood:
         self.net.load_state_dict(load(f'{self.config["name"]}/networkStateDict.p', 
                                         map_location=device(self.config['device'])))
     def __call__(self, features, network=None):
-        #means = tensor(self.config['trainmeans']).to(device=device(self.config['device']))
-        #stds = tensor(self.config['trainstds']).to(device=device(self.config['device']))
         with no_grad():
-            s   = self.net((features - features.mean(0))/features.std(0))
+            s = self.net((features - features.mean(0))/features.std(0))
         lr  = (s/(1-s)).flatten()
         lr *= self.config['sig2bkg']
+        #return s.flatten(), lr
         return lr
             
 class fullLikelihood: 
